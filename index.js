@@ -5,6 +5,12 @@ const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server);
 
+const generateRandomUsername = require('./utils.js');
+
+// Really bad but basic way to add usernames and message 'persistence'
+var users = {};
+var messages = {};
+
 // Fix CSS stylesheet not loading correctly
 app.use(express.static('static'));
 
@@ -16,7 +22,12 @@ app.get('/', (req, res) => {
 // Server's socketio events
 io.on('connection', (socket) => {
     console.log('new connection!');
-    socket.broadcast.emit('hi');
+
+    // Generate random username & save it
+    const username = generateRandomUsername();
+    messages[username] = [];
+
+    socket.broadcast.emit('user-connection', username);
 
     socket.on('chat message', (msg) => {
         io.emit('chat message', msg);
@@ -24,6 +35,7 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log('connection logged off');
+        socket.broadcast.emit('user-disconnect', username);
     });
 });
 
