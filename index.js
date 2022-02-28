@@ -5,6 +5,9 @@ const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server);
 
+// Fix CSS stylesheet not loading correctly
+app.use(express.static('static'));
+
 // Homepage route (Express?)
 app.get('/', (req, res) => {
     res.sendFile(__dirname + "/index.html");
